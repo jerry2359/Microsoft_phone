@@ -1,0 +1,245 @@
+html,body { width:100%; height:100%; position: relative; overflow: hidden;}
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,menu,nav,output,ruby,section,summary,time,mark,audio,video,p{margin:0;padding:0;border:0;vertical-align:baseline;}
+
+/* HTML5 display-role reset for older browsers */
+article,aside,details,figcaption,figure,footer,header,menu,nav,section{display:block;}
+body{line-height:1.2;font-size:26px;font-family:"微软雅黑","黑体",Verdana,Arial,Helvetica,sans-serif;margin:0 auto; color: #40aaff; background-color: #000;}
+ol,ul{list-style:none;}
+a, u{text-decoration:none;}
+a{color: #40aaff;}
+a:hover{color: #40aaff;}
+img{border:0px;vertical-align:middle;}
+em{ font-style: normal;}
+input,button,select,textarea{outline:none}
+
+/*取消点击高亮*/
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/*修改input的placeholder颜色*/
+input::-webkit-input-placeholder { /* WebKit browsers */
+    color:#fef5a6;
+}
+input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:#fef5a6;
+}
+input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:#fef5a6;
+}
+input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:#fef5a6;
+}
+
+/*css3动画定义*/
+.ts0_1 { -webkit-transition:0.1s all ease; -moz-transition:0.1s all ease; -ms-transition:0.1s all ease; -o-transition:0.1s all ease; transition:0.1s all ease; }
+.ts0_5{ -webkit-transition:0.5s all ease; -moz-transition:0.5s all ease; -ms-transition:0.5s all ease; -o-transition:0.5s all ease; transition:0.5s all ease; }
+.ts1 { -webkit-transition:1s all ease; -moz-transition:1s all ease; -ms-transition:1s all ease; -o-transition:1s all Linear; transition:1s all ease; }
+.ts2 { -webkit-transition:2s all ease; -moz-transition:2s all ease; -ms-transition:2s all ease; -o-transition:2s all Linear; transition:2s all ease; }
+.ts3 { -webkit-transition:3s all ease; -moz-transition:3s all ease; -ms-transition:3s all ease; -o-transition:3s all ease; transition:3s all ease; }
+.ts4 { -webkit-transition:4s all ease; -moz-transition:4s all ease; -ms-transition:4s all ease; -o-transition:4s all ease; transition:4s all ease; }
+.ts10 { -webkit-transition:10s all linear; -moz-transition:10s all linear; -ms-transition:10s all linear; -o-transition:10s all linear; transition:10s all linear; }
+
+
+/*共同部分*/
+#wrap {
+    background-size: cover;
+}
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../img/common/page_bg.jpg") center no-repeat;
+    display: none;
+}
+.page.active {
+    display: block;
+}
+.page img {
+    position: absolute;
+}
+
+.loading {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 500;
+    background: url("../img/common/loading_bg.jpg") center no-repeat;
+    background-size: cover;
+    display: none;
+}
+.loading.active {
+    display: block;
+}
+.loading p {
+    display: block;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -200px;
+}
+.loading span {
+    display: block;
+    width: 57.03%;
+    height: 8px;
+    position: absolute;
+    top: 50%;
+    left: 21.87%;
+    margin-top: -140px;
+    border-bottom: #40aaff solid 2px;
+}
+.loading span em {
+    display: block;
+    width: 0;
+    height: 100%;
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    background-color: #40aaff;
+}
+.logo, .windows10 {
+    position: absolute;
+    top: 37px;
+}
+.logo {
+    width: 120px;
+    height: 25px;
+    left: 40px;
+    background: url("../img/common/icon/icon_01.png?__spriter") 0 0 no-repeat;
+}
+.windows10 {
+    width: 144px;
+    height: 26px;
+    right: 40px;
+    background: url("../img/common/icon/icon_02.png?__spriter") 0 0 no-repeat;
+}
+.musicIcon {
+    width: 26px;
+    height: 23px;
+    position: absolute;
+    top: 27px;
+    right: 40px;
+    background: url("../img/common/musicIcon1.png") 0 0 no-repeat;
+}
+.musicIcon.status2 {
+    top: 90px;
+}
+.arrow {
+    width: 67px;
+    height: 34px;
+    position: absolute;
+    left: 290px;
+    bottom: 35px;
+    background: url("../img/common/icon/icon_03.png?__spriter") 0 0 no-repeat;
+}
+
+/*第1页*/
+.page1 {
+    background-image: url("../img/page1/bg.jpg");
+}
+.page1 img.part1 {
+    top: 164px;
+    right: 85px;
+}
+.page1 img.part2 {
+    top: 157px;
+    left: 85px;
+}
+.page1 img.part3 {
+    top: 140px;
+    left: 74px;
+}
+.page1 img.part4 {
+    top: 395px;
+    left: 77px;
+}
+.page1 img.btn {
+    top: 596px;
+    left: 160px;
+}
+
+/*第2页*/
+.page2 img.cir {
+    top: 60px;
+    left: 120px;
+}
+.page2 img.text {
+    top: 678px;
+    left: 87px;
+}
+.page2 img.scan {
+    top: 0;
+    left: 0;
+    margin-top: -206px;
+}
+.page2 .layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+.page2 .layer.active {
+    display: block;
+}
+.page2 .layer img {
+    opacity: 0;
+}
+.page2 .layer img.show {
+    opacity: 1;
+}
+
+@-webkit-keyframes rotate {
+    0% {
+        -webkit-transform-origin: center;
+        transform-origin: center;
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform-origin: center;
+        transform-origin: center;
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+.page2 img.rotate {
+    -webkit-animation-name: rotate;
+    animation-name: rotate;
+    -webkit-animation-duration: 1000ms;
+    animation-duration: 1000ms;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+}
+
+
+
+
+/************************************************************************************
+smaller than 480 PHONE
+*************************************************************************************/
+@media screen and (max-width: 480px){
+
+    /*loading*/
+    .loading p {
+        font-size: 18px;
+    }
+    .loading span {
+        margin-top: -150px;
+    }
+
+}
+
+
+
