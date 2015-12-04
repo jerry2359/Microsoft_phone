@@ -164,9 +164,17 @@
             animationClass += key;
         });
 
-        //为兼容css样式命名书写规范，分别处理%号和贝塞尔格式
-        animationClass = animationClass.replace(/\%|\(.+\)/g, function($0) {
-            return $0.indexOf('%') == -1 ? $0.replace(/\(|\)|\,|\s|\./g, '') : 'percent';
+        //为兼容css样式命名书写规范，分别处理%号、贝塞尔格式、去掉 "."
+        animationClass = animationClass.replace(/\%|\.|\(.+\)/g, function($0) {
+            var result;
+            if ( $0.indexOf('%') == -1 ) {
+                result = $0.replace(/\(|\)|\,|\s|\./g, '');
+            } else if ( $0.indexOf('.') != -1 ) {
+                result = '';
+            } else {
+                result = 'percent';
+            }
+            return result;
         });
 
         _this.styleInfo = {

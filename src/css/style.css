@@ -487,6 +487,9 @@ img.text {
     height: 550px;
     left: 44px;
 }
+.page6 .hotarea_left2, .page6 .hotarea_right2 {
+    opacity: 0;
+}
 .page6 .hotarea_right {
     width: 210px;
     height: 500px;

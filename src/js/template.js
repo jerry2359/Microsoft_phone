@@ -73,6 +73,9 @@
                                 -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
                                 transform: translate3d(#startX#, #startY#, #startZ#);\n\
                             }\n\
+                            50% {\n\
+                                opacity: 1;\n\
+                            }\n\
                             100% {\n\
                                 opacity: 0;\n\
                                 -webkit-transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
@@ -186,6 +189,41 @@
                                 opacity: 1;\n\
                                 -webkit-transform: scale3d(1, 1, 1);\n\
                                 transform: scale3d(1, 1, 1);\n\
+                            }\n\
+                        }'
+        },
+
+        'zoomIn': {
+            'defs': {
+                'startZoom': 0.3,
+                'targetZoom': 1
+            },
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: scale(#startZoom#);\n\
+                                transform: scale(#startZoom#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: 1;\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform: scale(#targetZoom#);\n\
+                                transform: scale(#targetZoom#);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: scale(#startZoom#);\n\
+                                transform: scale(#startZoom#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: 1;\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform: scale(#targetZoom#);\n\
+                                transform: scale(#targetZoom#);\n\
                             }\n\
                         }'
         },
