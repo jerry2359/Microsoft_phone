@@ -12,7 +12,7 @@
 
             //延迟loading变量
             aLoadData = [],
-            loadCur = 0,
+            loadCur = -1,
             loadSpeed = 30,
             loadListenI = 0,
             isProgress = false,
@@ -71,7 +71,7 @@
         function progressPercent() {
             isProgress = true;
             if ( loadCur < 100 ) {
-                if ( loadCur != aLoadData[0] && aLoadData.length > 0 ) {
+                if ( aLoadData.length > 0 ) {
                     //延迟加载中... 百分比
                     loadCur = aLoadData.shift();
                 }

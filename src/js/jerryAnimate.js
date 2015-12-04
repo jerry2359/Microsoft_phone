@@ -143,7 +143,8 @@
             timingFunction,
             fillMode,
             infinite,
-            alternate;
+            alternate,
+            delay;
 
         $.extend(defs, curTemplate.defs); //合并默认参数
         $.extend(defs, opts.details); //动画数据参数覆盖默认参数
@@ -152,8 +153,10 @@
         duration = defs.duration;
         timingFunction = defs.function;
         fillMode = defs.fillMode;
+        delay = defs.delay;
         infinite = defs.infinite ? '-webkit-animation-iteration-count:infinite; animation-iteration-count:infinite;\n' : '';
         alternate = defs.alternate ? '-webkit-animation-direction:alternate; animation-direction:alternate;\n' : '';
+        delay = delay ? '-webkit-animation-delay:'+delay+'ms; animation-delay:'+delay+'ms;\n' : '';
 
         //console.log(curTemplate);
 
@@ -161,7 +164,10 @@
             animationClass += key;
         });
 
-        animationClass = animationClass.replace(/%/g, 'percent'); //为兼容样式书写规范，替换% 变为 'percent'
+        //为兼容css样式命名书写规范，分别处理%号和贝塞尔格式
+        animationClass = animationClass.replace(/\%|\(.+\)/g, function($0) {
+            return $0.indexOf('%') == -1 ? $0.replace(/\(|\)|\,|\s|\./g, '') : 'percent';
+        });
 
         _this.styleInfo = {
             'animationClass': animationClass,
@@ -175,7 +181,7 @@
                                 animation-duration: '+ duration +'ms;\n\
                                 -webkit-animation-fill-mode: '+ fillMode +';\n\
                                 animation-fill-mode: '+ fillMode +';\n\
-                                '+ infinite + alternate +'\n\
+                                '+ infinite + alternate + delay +'\n\
                             }'
         };
 

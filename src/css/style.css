@@ -3,7 +3,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 
 /* HTML5 display-role reset for older browsers */
 article,aside,details,figcaption,figure,footer,header,menu,nav,section{display:block;}
-body{line-height:1.2;font-size:26px;font-family:"微软雅黑","黑体",Verdana,Arial,Helvetica,sans-serif;margin:0 auto; color: #40aaff; background-color: #000;}
+body{line-height:1.2;font-size:26px;font-family:"微软雅黑","黑体",Verdana,Arial,Helvetica,sans-serif;margin:0 auto; color: #40aaff; background-color: #171717;}
 ol,ul{list-style:none;}
 a, u{text-decoration:none;}
 a{color: #40aaff;}
@@ -51,7 +51,8 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("../img/common/page_bg.jpg") center no-repeat;
+    /*background: url("../img/common/page_bg.jpg") center no-repeat;
+    background-size: cover;*/
     display: none;
 }
 .page.active {
@@ -75,23 +76,29 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
 .loading.active {
     display: block;
 }
+.loading article {
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -100px;
+}
 .loading p {
     display: block;
     width: 100%;
     text-align: center;
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 0;
-    margin-top: -200px;
 }
 .loading span {
     display: block;
     width: 57.03%;
     height: 8px;
     position: absolute;
-    top: 50%;
+    bottom: 0;
     left: 21.87%;
-    margin-top: -140px;
     border-bottom: #40aaff solid 2px;
 }
 .loading span em {
@@ -120,24 +127,55 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
     background: url("../img/common/icon/icon_02.png?__spriter") 0 0 no-repeat;
 }
 .musicIcon {
-    width: 26px;
-    height: 23px;
+    width: 105px;
+    height: 80px;
     position: absolute;
-    top: 27px;
-    right: 40px;
-    background: url("../img/common/musicIcon1.png") 0 0 no-repeat;
+    top: 0;
+    right: 0;
+    background: url("../img/common/musicIcon1.png") center no-repeat;
+}
+.musicIcon.gray {
+    background-image: url("../img/common/musicIcon2.png");
+}
+.musicIcon.status1 {
+    top: 0;
 }
 .musicIcon.status2 {
-    top: 90px;
+    top: 60px;
 }
 .arrow {
     width: 67px;
     height: 34px;
     position: absolute;
     left: 290px;
-    bottom: 35px;
+    bottom: 20px;
     background: url("../img/common/icon/icon_03.png?__spriter") 0 0 no-repeat;
 }
+img.line1 {
+    top: 205px;
+    left: 10px;
+}
+img.line2 {
+    top: -5px;
+    left: 365px;
+}
+img.line3 {
+    top: 143px;
+    left: 390px;
+}
+img.line4 {
+    top: 235px;
+    left: 410px;
+}
+img.line5 {
+    top: 350px;
+    left: 305px;
+}
+img.text {
+    top: 678px;
+    left: 87px;
+}
+
 
 /*第1页*/
 .page1 {
@@ -169,10 +207,6 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
     top: 60px;
     left: 120px;
 }
-.page2 img.text {
-    top: 678px;
-    left: 87px;
-}
 .page2 img.scan {
     top: 0;
     left: 0;
@@ -184,6 +218,7 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
     position: absolute;
     top: 0;
     left: 0;
+    background-color: #151515;
     display: none;
 }
 .page2 .layer.active {
@@ -196,34 +231,342 @@ input:-ms-input-placeholder { /* Internet Explorer 10+ */
     opacity: 1;
 }
 
-@-webkit-keyframes rotate {
-    0% {
-        -webkit-transform-origin: center;
-        transform-origin: center;
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform-origin: center;
-        transform-origin: center;
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
+/*第3页*/
+.page3 img.board1, .page3 img.board2 {
+    top: 81px;
+    left: 165px;
 }
-.page2 img.rotate {
-    -webkit-animation-name: rotate;
-    animation-name: rotate;
-    -webkit-animation-duration: 1000ms;
-    animation-duration: 1000ms;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
-    -webkit-animation-iteration-count: infinite;
-    animation-iteration-count: infinite;
-    -webkit-animation-timing-function: linear;
-    animation-timing-function: linear;
+.page3 img.fan {
+    top: 350px;
+    left: 393px;
+}
+.scroll{
+    width: 18px;
+    height: 174px;
+    position: absolute;
+    top: 135px;
+    left: 208px;
+    background:url(../img/page4/scroll.png)  no-repeat;
+}
+.scroll3{height:174px;width:18px;background-position:0 0;}
+.scroll4{height:174px;width:18px;background-position:-18px 0;}
+.scroll1{height:174px;width:18px;background-position:-36px 0;}
+.scroll2{height:174px;width:18px;background-position:-54px 0;}
+
+.page3 .layer {
+    width: 100%;
+    height: 100%;
+    background-color: #161719;
+    display: none;
+}
+.page3 .layer.active {
+    display: block;
+}
+.page3 .layer .bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.page3 .layer .bg .gray {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 900px;
+    background-color: #c4c4c4;
+}
+.page3 .layer .bg .gray img {
+    top: -600px;
+    left: 300px;
+}
+.page3 .layer .bg .mask, .page3 .layer .bg .masktrpt {
+    top: 0;
+    left: 0;
+}
+.page3 .layer .box1 {
+    position: absolute;
+    top: 120px;
+    right: 0;
+}
+.page3 .layer .box1 img.box {
+    position: relative;
+}
+.page3 .layer .box1 img.gray {
+    top: 53px;
+    right: 32px;
+}
+.page3 .layer img.box2 {
+    top: 578px;
+    left: 0;
 }
 
 
+/*第4页*/
+.page4 img.light {
+    top: 78px;
+    left: 109px;
+}
+.page4 .layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #161719;
+    display: none;
+}
+.page4 .layer.active {
+    display: block;
+}
+.page4 .layer .box1, .page4 .layer .box2, .page4 .layer .box3 {
+    position: absolute;
+    overflow: hidden;
+}
+.page4 .layer img.pic {
+    opacity: 0;
+}
+.page4 .layer img.mask {
+    position: relative;
+}
+.page4 .layer .box1 {
+    top: 38px;
+    left: 0;
+}
+.page4 .layer .box1 img.gray {
+    top: 37px;
+    left: 0;
+}
+.page4 .layer .box1 img.pic {
+    top: -90px;
+    left: 50px;
+}
+.page4 .layer .box2 {
+    top: 290px;
+    right: 0;
+}
+.page4 .layer .box2 img.gray {
+    top: 10px;
+    right: 0;
+}
+.page4 .layer .box2 img.pic {
+    top: -110px;
+    left: -70px;
+}
+.page4 .layer .box3 {
+    top: 494px;
+    right: 0;
+}
+.page4 .layer .box3 img.gray {
+    top: 12px;
+    right: 27px;
+}
+.page4 .layer .box3 .view {
+    width: 566px;
+    height: 216px;
+    position: absolute;
+    top: 14px;
+    right: 31px;
+    overflow: hidden;;
+}
+.page4 .layer .box3 .view img.pic {
+    top: -120px;
+    left: 140px;
+}
+.page4 .layer img.box4 {
+    top: 749px;
+    left: 0;
+}
+
+@-webkit-keyframes lightSport {
+    0%, 10%, 20%, 30% {
+        opacity: 0;
+    }
+    5%, 15%, 25%, 35%, 100% {
+        opacity: 1;
+    }
+}
+@keyframes lightSport {
+    0%, 10%, 20%, 30% {
+        opacity: 0;
+    }
+    5%, 15%, 25%, 35%, 100% {
+        opacity: 1;
+    }
+}
+.active>.lightSport {
+    -webkit-animation: lightSport 3s steps(1,start) infinite;
+    animation: lightSport 3s steps(1,start) infinite;
+}
+
+
+/*第5页*/
+.page5 img.square1 {
+    top: 75px;
+    left: 150px;
+}
+.page5 img.square2 {
+    top: 134px;
+    left: 209px;
+}
+.page5 .square3 {
+    width: 104px;
+    height: 105px;
+    position: absolute;
+    top: 196px;
+    left: 272px;
+    background: url("../img/page3/pic_04.png") 0 0 no-repeat;
+}
+.page5 .square3 dl {
+    position: absolute;
+    top: 33px;
+    left: 33px;
+    width: 42px;
+}
+.page5 .square3 dl dd {
+    display: block;
+    width: 19px;
+    height: 19px;
+    float: left;
+    margin-right: 2px;
+    background-color: #fff;
+}
+.page5 .layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #151515;
+    display: none;
+}
+.page5 .layer.active {
+    display: block;
+}
+.page5 .layer img {
+    opacity: 0;
+}
+.page5 .layer img.show {
+    opacity: 1;
+}
+
+
+/*第6页*/
+.page6 img.tit {
+    top: 105px;
+    left: 85px;
+}
+.page6 img.mobile_left {
+    top: 215px;
+    left: 43px;
+}
+.page6 img.mobile_right {
+    top: 250px;
+    left: 323px;
+}
+.page6 img.text_left {
+    bottom: 184px;
+    left: 50px;
+    opacity: 0;
+}
+.page6 img.text_right {
+    bottom: 235px;
+    right: 42px;
+    opacity: 0;
+}
+.page6 img.btn {
+    bottom: 90px;
+    left: 99px;
+}
+.page6 .hotarea_left, .page6 .hotarea_right {
+    position: absolute;
+    top: 210px;
+}
+.page6 .hotarea_left {
+    width: 305px;
+    height: 550px;
+    left: 44px;
+}
+.page6 .hotarea_right {
+    width: 210px;
+    height: 500px;
+    left: 350px;
+}
+.page6 .layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #171717;
+    display: none;
+}
+.page6 .layer.active {
+    display: block;
+}
+.page6 .layer .content {
+    width: 581px;
+    height: 832px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -416px 0 0 -290px;
+    background: url("../img/page6/pic_06.png") 0 0 no-repeat;
+    overflow: hidden;
+}
+.page6 .layer .content span.close {
+    display: block;
+    width: 165px;
+    height: 210px;
+    position: absolute;
+    top: -31px;
+    left: -31px;
+    background: url("../img/page6/pic_05.png") 0 0 no-repeat;
+}
+.page6 .layer .content article {
+    width: 100%;
+    height: 828px;
+    position: absolute;
+    top: 2px;
+    left: 0;
+    overflow: hidden;
+}
+.page6 .layer .content article em {
+    display: block;
+}
+.page6 .layer .content article img {
+    display: block;
+    margin: 0 auto;
+    position: static;
+}
+.page6 .layer .content article a {
+    display: block;
+    width: 493px;
+    height: 89px;
+    margin: 40px auto 0;
+    padding-bottom: 40px;
+    background: url("../img/page6/pic_08.png") 0 0 no-repeat;
+}
+
+
+/*第7页*/
+.page7 img.tit {
+    top: 129px;
+    left: 82px;
+}
+.page7 img.line {
+    top: 362px;
+    left: 0;
+}
+.page7 a.btn {
+    display: block;
+    width: 493px;
+    height: 89px;
+    position: absolute;
+    bottom: 63px;
+    left: 73px;
+    background: url("../img/page7/pic_02.png") 0 0 no-repeat;
+}
 
 
 /************************************************************************************
@@ -235,8 +578,8 @@ smaller than 480 PHONE
     .loading p {
         font-size: 18px;
     }
-    .loading span {
-        margin-top: -150px;
+    .loading article {
+        height: 50px;
     }
 
 }

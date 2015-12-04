@@ -172,7 +172,8 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
             timingFunction,
             fillMode,
             infinite,
-            alternate;
+            alternate,
+            delay;
 
         $.extend(defs, curTemplate.defs); //合并默认参数
         $.extend(defs, opts.details); //动画数据参数覆盖默认参数
@@ -181,8 +182,10 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
         duration = defs.duration;
         timingFunction = defs.function;
         fillMode = defs.fillMode;
+        delay = defs.delay;
         infinite = defs.infinite ? '-webkit-animation-iteration-count:infinite; animation-iteration-count:infinite;\n' : '';
         alternate = defs.alternate ? '-webkit-animation-direction:alternate; animation-direction:alternate;\n' : '';
+        delay = delay ? '-webkit-animation-delay:'+delay+'ms; animation-delay:'+delay+'ms;\n' : '';
 
         //console.log(curTemplate);
 
@@ -190,7 +193,10 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
             animationClass += key;
         });
 
-        animationClass = animationClass.replace(/%/g, 'percent'); //为兼容样式书写规范，替换% 变为 'percent'
+        //为兼容css样式命名书写规范，分别处理%号和贝塞尔格式
+        animationClass = animationClass.replace(/\%|\(.+\)/g, function($0) {
+            return $0.indexOf('%') == -1 ? $0.replace(/\(|\)|\,|\s|\./g, '') : 'percent';
+        });
 
         _this.styleInfo = {
             'animationClass': animationClass,
@@ -204,7 +210,7 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
                                 animation-duration: '+ duration +'ms;\n\
                                 -webkit-animation-fill-mode: '+ fillMode +';\n\
                                 animation-fill-mode: '+ fillMode +';\n\
-                                '+ infinite + alternate +'\n\
+                                '+ infinite + alternate + delay +'\n\
                             }'
         };
 
@@ -309,8 +315,8 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
         //旋转
         'rotate': {
             'defs': {
-                'startAngle': 0,
-                'targetAngle': 0
+                'startAngle': '0deg',
+                'targetAngle': '360deg'
             },
             'style': '@-webkit-keyframes #animationClass# {\n\
                             0% {\n\
@@ -340,6 +346,189 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
                                 transform: rotate(#targetAngle#);\n\
                             }\n\
                         }'
+        },
+
+        //直线高光
+        'lineLight': {
+            'defs': {
+                'startX': 0,
+                'startY': 0,
+                'startZ': 0,
+                'targetX': 0,
+                'targetY': 0,
+                'targetZ': 0
+            },
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                                transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: 1;\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                                transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                                transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                                transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                            }\n\
+                        }'
+        },
+
+        //旋转缩放
+        'rotateScale': {
+            'defs': {
+                'startAngle': 0,
+                'targetAngle': 0,
+                'startScale': 1,
+                'targetScale': 0
+            },
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0% {\n\
+                                -webkit-transform-origin: center;\n\
+                                transform-origin: center;\n\
+                                -webkit-transform: rotate(#startAngle#) scale(#startScale#);\n\
+                                transform: rotate(#startAngle#) scale(#startScale#);\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform-origin: center;\n\
+                                transform-origin: center;\n\
+                                -webkit-transform: rotate(#targetAngle#) scale(#targetScale#);\n\
+                                transform: rotate(#targetAngle#) scale(#targetScale#);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0% {\n\
+                                -webkit-transform-origin: center;\n\
+                                transform-origin: center;\n\
+                                -webkit-transform: rotate(#startAngle#) scale(#startScale#);\n\
+                                transform: rotate(#startAngle#) scale(#startScale#);\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform-origin: center;\n\
+                                transform-origin: center;\n\
+                                -webkit-transform: rotate(#targetAngle#) scale(#targetScale#);\n\
+                                transform: rotate(#targetAngle#) scale(#targetScale#);\n\
+                            }\n\
+                        }'
+        },
+
+        /////////////////////////animate.css 动画包////////////////////////
+        'bounceIn': {
+            'defs': {},
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0%, 20%, 40%, 60%, 80%, 100% {\n\
+                                -webkit-transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n\
+                                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n\
+                            }\n\
+                            0% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: scale3d(.3, .3, .3);\n\
+                                transform: scale3d(.3, .3, .3);\n\
+                            }\n\
+                            20% {\n\
+                                -webkit-transform: scale3d(1.1, 1.1, 1.1);\n\
+                                transform: scale3d(1.1, 1.1, 1.1);\n\
+                            }\n\
+                            40% {\n\
+                                -webkit-transform: scale3d(.9, .9, .9);\n\
+                                transform: scale3d(.9, .9, .9);\n\
+                            }\n\
+                            60% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: scale3d(1.03, 1.03, 1.03);\n\
+                                transform: scale3d(1.03, 1.03, 1.03);\n\
+                            }\n\
+                            80% {\n\
+                                -webkit-transform: scale3d(.97, .97, .97);\n\
+                                transform: scale3d(.97, .97, .97);\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: scale3d(1, 1, 1);\n\
+                                transform: scale3d(1, 1, 1);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0%, 20%, 40%, 60%, 80%, 100% {\n\
+                                -webkit-transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n\
+                                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);\n\
+                            }\n\
+                            0% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: scale3d(.3, .3, .3);\n\
+                                transform: scale3d(.3, .3, .3);\n\
+                            }\n\
+                            20% {\n\
+                                -webkit-transform: scale3d(1.1, 1.1, 1.1);\n\
+                                transform: scale3d(1.1, 1.1, 1.1);\n\
+                            }\n\
+                            40% {\n\
+                                -webkit-transform: scale3d(.9, .9, .9);\n\
+                                transform: scale3d(.9, .9, .9);\n\
+                            }\n\
+                            60% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: scale3d(1.03, 1.03, 1.03);\n\
+                                transform: scale3d(1.03, 1.03, 1.03);\n\
+                            }\n\
+                            80% {\n\
+                                -webkit-transform: scale3d(.97, .97, .97);\n\
+                                transform: scale3d(.97, .97, .97);\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: scale3d(1, 1, 1);\n\
+                                transform: scale3d(1, 1, 1);\n\
+                            }\n\
+                        }'
+        },
+
+        'fadeOut': {
+            'defs': {
+                'startX': 0,
+                'startY': 0,
+                'startZ': 0,
+                'targetX': 0,
+                'targetY': 0,
+                'targetZ': 0
+            },
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                                transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                                transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: 1;\n\
+                                -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                                transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                            }\n\
+                            100% {\n\
+                                opacity: 0;\n\
+                                -webkit-transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                                transform: translate3d(#targetX#, #targetY#, #targetZ#);\n\
+                            }\n\
+                        }'
         }
 
     });
@@ -359,7 +548,7 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
 
             //延迟loading变量
             aLoadData = [],
-            loadCur = 0,
+            loadCur = -1,
             loadSpeed = 30,
             loadListenI = 0,
             isProgress = false,
@@ -418,7 +607,7 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
         function progressPercent() {
             isProgress = true;
             if ( loadCur < 100 ) {
-                if ( loadCur != aLoadData[0] && aLoadData.length > 0 ) {
+                if ( aLoadData.length > 0 ) {
                     //延迟加载中... 百分比
                     loadCur = aLoadData.shift();
                 }
@@ -852,35 +1041,235 @@ CssSprite.prototype.stop = function() {
     //loading处理
     (function() {
 
+        var oBox = $('.loading'),
+            oBdo = oBox.find('bdo'),
+            oEm = oBox.find('em');
+
+        //选取body 延迟加载
+        $('body').lazyLoading()
+            .concat([
+                '../img/common/page_bg.jpg',
+                '../img/common/loading_bg.jpg',
+                '../img/page1/bg.jpg'
+            ])
+            .progress(function(percent) {
+                oBdo.text(percent+'%');
+                oEm.css('width', percent+'%');
+            })
+            .callBack(function() {
+                oBox.fadeOut({'removeClass':'active'});
+                page1Module.show();
+            });
+
+    })();
+
+
+    //第1页
+    var page1Module = (function() {
+
+        var oBox = $('.page1'),
+            oBtn = oBox.find('.btn'),
+            oMusicIcon = $('.musicIcon');
+
+        //点击按钮，一探究竟
+        oBtn.on('click', function() {
+            oBox.fadeOut({'removeClass':'active'});
+            page2Module.show();
+            setTimeout(function() {
+                oMusicIcon.removeClass('status2');
+            }, 300);
+        });
+
+        return {
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+            }
+        }
+
     })();
 
 
     //第2页
-    (function() {
+    var page2Module = (function() {
 
         var oBox = $('.page2'),
             oScan = oBox.find('.scan'),
             oLayer = oBox.find('.layer'),
             layerFrams = oLayer.find('img'),
-            timer = null, index = 0, iLen = layerFrams.length;
+            timer = null, index = 0, iLen = 63, canSwipe = false;
 
         function playFrams() {
-            timer = setInterval(function() {
-                index ++;
-                if ( index < iLen ) {
-                    layerFrams.removeClass('show').eq(index).addClass('show');
-                } else {
-                    clearInterval(timer);
+            index ++;
+            if ( index == 62 ) {
+                canSwipe = true;
+            }
+            if ( index < iLen ) {
+                layerFrams.removeClass('show').eq(index).addClass('show');
+            } else {
+                clearInterval(timer);
+                if ( index > 63 ) {
+                    oBox.fadeOut({'removeClass':'active'});
+                    page3Module.show();
                 }
-            }, 60);
+            }
         }
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+
+        oBox.one('swipeUp', function() {
+            oScan.attr('data-animate', "{'animation':'slide', 'details':{'startY':'-300px', 'targetY':'1200px', 'duration':3000, 'function':'linear'}}");
+            jerryAnimate(oScan).render();
+        });
+
+        oLayer.on('swipeUp', function() {
+            if ( canSwipe ) {
+                canSwipe = false;
+                iLen = layerFrams.length;
+                timer = setInterval(playFrams, 60);
+            }
+        });
 
         //监测扫描完毕
         oScan.one('webkitAnimationEnd animationEnd', function() {
-            oLayer.fadeIn({'addClass':'active', 'callBack':playFrams});
+            oLayer.fadeIn({'addClass':'active', 'callBack':function() {
+                timer = setInterval(playFrams, 60);
+            }});
         });
+
+        return {
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+            }
+        }
 
     })();
 
+
+    //第3页
+    var page3Module = (function() {
+
+        var oBox = $('.page3'),
+            oDl = oBox.find('.square3 dl'),
+            oLayer = oBox.find('.layer'),
+            layerFrams = oLayer.find('img'),
+            timer = null, index = 0, iLen = 21, canSwipe = false;
+
+        function playFrams() {
+            index ++;
+            if ( index == 20 ) {
+                canSwipe = true;
+            }
+            if ( index < iLen ) {
+                layerFrams.removeClass('show').eq(index).addClass('show');
+            } else {
+                clearInterval(timer);
+                if ( index > 21 ) {
+                    oBox.fadeOut({'removeClass':'active'});
+                    page4Module.show();
+                }
+            }
+        }
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+
+        oBox.one('swipeUp', function() {
+            oDl.removeClass('active');
+            oLayer.addClass('active');
+            timer = setInterval(playFrams, 100);
+        });
+
+        oLayer.on('swipeUp', function() {
+            if ( canSwipe ) {
+                canSwipe = false;
+                iLen = layerFrams.length;
+                timer = setInterval(playFrams, 100);
+            }
+        });
+
+        return {
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+                oDl.addClass('active');
+            }
+        }
+
+    })();
+
+
+    //第4页
+    var page4Module = (function() {
+
+        var oBox = $('.page4'),
+            oScroll = oBox.find('.scroll'),
+            oLayer = oBox.find('.layer'),
+            oBg = oLayer.find('.bg'),
+            oBgGray = oBg.find('.gray'),
+            oBgMask = oBg.find('.mask'),
+            oBgMaskTrpt = oBg.find('.masktrpt'),
+            obox1 = oLayer.find('.box1'),
+            obox1Gray = obox1.find('.gray');
+
+        var scrollFrames = new CssSprite({
+            'stage'         : oScroll.get(0),
+            'commonClass'   : 'scroll',
+            'classPrefix'   : 'scroll',
+            'frames'        : 4,
+            'time'          : 700,
+            'waitTime'      : 0,
+            'loop'          : 1
+        });
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+        oBox.one('swipeUp', function() {
+            scrollFrames.stop();
+            oLayer.addClass('active');
+        });
+
+        oLayer.one('swipeUp', function() {
+            oBox.fadeOut({'removeClass':'active'});
+            page5Module.show();
+        });
+
+        //监测layer中box动画完毕
+        obox1.one('webkitAnimationEnd animationEnd', function() {
+            oBgMask.hide();
+            oBgMaskTrpt.show();
+            oBgGray.addClass('active');
+            obox1Gray.hide();
+        });
+
+        return {
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+                scrollFrames.play();
+            }
+        }
+
+    })();
+
+
+    //第5页
+    var page5Module = (function() {
+
+        var oBox = $('.page5');
+
+        return {
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+            }
+        }
+
+    })();
+
+
+    //test
+    $('.loading').hide();
+    page5Module.show();
 
 })( Zepto );
