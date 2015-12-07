@@ -193,9 +193,17 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
             animationClass += key;
         });
 
-        //为兼容css样式命名书写规范，分别处理%号和贝塞尔格式
-        animationClass = animationClass.replace(/\%|\(.+\)/g, function($0) {
-            return $0.indexOf('%') == -1 ? $0.replace(/\(|\)|\,|\s|\./g, '') : 'percent';
+        //为兼容css样式命名书写规范，分别处理%号、贝塞尔格式、去掉 "."
+        animationClass = animationClass.replace(/\%|\.|\(.+\)/g, function($0) {
+            var result;
+            if ( $0.indexOf('%') == -1 ) {
+                result = $0.replace(/\(|\)|\,|\s|\./g, '');
+            } else if ( $0.indexOf('.') != -1 ) {
+                result = '';
+            } else {
+                result = 'percent';
+            }
+            return result;
         });
 
         _this.styleInfo = {
@@ -272,6 +280,8 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
         styleTag.innerHTML = styleStr;
         $(styleTag).remove();
         $('head').append(styleTag);
+
+        return _this;
     };
 
 
@@ -378,6 +388,9 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
                                 opacity: 1;\n\
                                 -webkit-transform: translate3d(#startX#, #startY#, #startZ#);\n\
                                 transform: translate3d(#startX#, #startY#, #startZ#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: 1;\n\
                             }\n\
                             100% {\n\
                                 opacity: 0;\n\
@@ -492,6 +505,43 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
                                 opacity: 1;\n\
                                 -webkit-transform: scale3d(1, 1, 1);\n\
                                 transform: scale3d(1, 1, 1);\n\
+                            }\n\
+                        }'
+        },
+
+        'zoomIn': {
+            'defs': {
+                'startOpacity': 0,
+                'targetOpacity': 1,
+                'startZoom': 0.3,
+                'targetZoom': 1
+            },
+            'style': '@-webkit-keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: #startOpacity#;\n\
+                                -webkit-transform: scale(#startZoom#);\n\
+                                transform: scale(#startZoom#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: #targetOpacity#;\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform: scale(#targetZoom#);\n\
+                                transform: scale(#targetZoom#);\n\
+                            }\n\
+                        }\n\
+                        @keyframes #animationClass# {\n\
+                            0% {\n\
+                                opacity: #startOpacity#;\n\
+                                -webkit-transform: scale(#startZoom#);\n\
+                                transform: scale(#startZoom#);\n\
+                            }\n\
+                            50% {\n\
+                                opacity: #targetOpacity#;\n\
+                            }\n\
+                            100% {\n\
+                                -webkit-transform: scale(#targetZoom#);\n\
+                                transform: scale(#targetZoom#);\n\
                             }\n\
                         }'
         },
@@ -1013,6 +1063,147 @@ CssSprite.prototype.stop = function() {
 };
 
 /**
+ * Created by LinJe on 2015/11/10.
+ * 基于zepto的自定义滚动条插件
+ */
+;(function( $, window, document, undefined ) {
+
+    $.extend($.fn, {
+        'vScrollbar': function( settings ) {
+            var defs = {
+                'scrollEle':'.scrollWrap',
+                'scrollBarEle': '.scrollBar',
+                'scrollHandleEle': '.scrollHandle',
+                'scrollBar': false,
+                'easeSpeed': 5
+            };
+
+            $.extend(defs, settings);
+
+            var $this = $(this),
+                scrollEle = $this.find(defs.scrollEle),
+                scrollBarEle = $this.find(defs.scrollBarEle),
+                scrollHandleEle = $this.find(defs.scrollHandleEle),
+                scrollBar = defs.scrollBar,
+                winHeight = parseInt($this.css('height')),
+                scrollHeight = undefined,
+                scrollBarH = parseInt(scrollBarEle.css('height')) - parseInt(scrollHandleEle.css('height')),
+                easeSpeed = defs.easeSpeed,
+                startY = 0, distance = 0, oldDistance = 0,
+                disBox = [],
+                timerScrollH = null, timerScrollOut = null;
+
+            if ( !$.fn.animate ) {
+                var styleNode = document.createElement('style');
+                styleNode.type = 'text/css';
+                styleNode.innerHTML = defs.scrollEle+'.scrollTransition{-webkit-transition:300ms all ease-out;transition:300ms all ease-out;}';
+                document.getElementsByTagName('head')[0].appendChild(styleNode);
+            }
+
+            var setTranslate = function( $obj, y ) {
+                    var transVal = 'translateY('+ y +'px)';
+                    $obj.css({'-webkit-transform':transVal, 'transform':transVal});
+                },
+                getHandleDis = function() {
+                    return Math.abs(distance/scrollHeight * scrollBarH);
+                },
+                setHandle = function() {
+                    setTranslate(scrollHandleEle, getHandleDis());
+                },
+                slowAction = function( $obj, target ) {
+                    var transVal = 'translateY('+ target +'px)';
+                    if ( $.fn.animate ) {
+                        $obj.animate({'-webkit-transform':transVal, 'transform':transVal}, 300, 'ease-out');
+                    } else {
+                        $obj.addClass('scrollTransition').css({'-webkit-transform':transVal, 'transform':transVal});
+                    }
+                },
+                rangeDistance = function() {
+                    if ( distance > 0 ) {
+                        distance = 0;
+                    } else if ( distance < scrollHeight ) {
+                        distance = scrollHeight < 0 ? scrollHeight : 0;
+                    }
+                },
+                getScrollH = function( callBack ) {
+                    clearInterval(timerScrollH);
+                    clearTimeout(timerScrollOut);
+                    timerScrollH = setInterval(function() {
+                        var tmpScrollH = scrollEle.get(0).scrollHeight;
+                        if ( !scrollHeight ) {
+                            if ( tmpScrollH > winHeight ) {
+                                scrollHeight = winHeight - tmpScrollH;
+                            }
+                        } else {
+                            clearInterval(timerScrollH);
+                            clearTimeout(timerScrollOut);
+                            callBack && callBack();
+                        }
+                    }, 100);
+                    timerScrollOut = setTimeout(function() {
+                        clearInterval(timerScrollH);
+                        $(window).on('load', function() {
+                            scrollHeight = winHeight - scrollEle.get(0).scrollHeight;
+                            callBack && callBack();
+                        });
+                    }, 10000);
+                };
+
+
+            getScrollH();
+
+            $this.on('touchstart', function(ev) {
+                disBox = [];
+                oldDistance = distance;
+                startY = ev.changedTouches[0].pageY;
+                scrollEle.removeClass('scrollTransition');
+            });
+
+            $this.on('touchmove', function(ev) {
+                var moveY = ev.changedTouches[0].pageY;
+
+                distance = moveY - startY + oldDistance;
+                rangeDistance();
+
+                if ( distance != oldDistance ) {
+                    setTranslate(scrollEle, distance);
+                    scrollBar && setHandle();
+                    disBox.push(moveY);
+                }
+                ev.preventDefault();
+            });
+
+            $this.on('touchend', function(ev) {
+                var len = disBox.length,
+                    speed = (disBox[len-1]-disBox[len-2]) * easeSpeed; //设置滚动的缓动灵敏度倍数
+
+                if ( typeof speed == 'number' && speed === speed ) {
+                    distance += speed;
+                    rangeDistance();
+                    slowAction(scrollEle, distance);
+                    scrollBar && slowAction(scrollHandleEle, getHandleDis());
+                }
+            });
+
+            //重置滚动区域
+            $this.resize = function() {
+                startY = 0;
+                distance = 0;
+                oldDistance = 0;
+                scrollHeight = undefined;
+                getScrollH(function() {
+                    setTranslate(scrollEle, distance);
+                    scrollBar && setHandle();
+                });
+            };
+
+            return $this;
+        }
+    });
+
+})( Zepto, window, document );
+
+/**
  * Created by LinJe on 2015/11/30.
  */
 ;(function( $ ) {
@@ -1064,25 +1255,64 @@ CssSprite.prototype.stop = function() {
     })();
 
 
+    //音乐处理
+    var musicModule = (function() {
+
+        var oMusicIcon = $('.musicIcon'),
+            bgMusic = new Audio('../media/bgmusic.mp3'),
+            isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+        bgMusic.loop = 'loop';
+        if ( isIos ) {
+            oMusicIcon.removeClass('gray');
+            bgMusic.play();
+        }
+
+        oMusicIcon.on('click', function() {
+            var thisIcon = $(this);
+            if ( !thisIcon.hasClass('gray') ) {
+                thisIcon.addClass('gray');
+                bgMusic.pause();
+            } else {
+                thisIcon.removeClass('gray');
+                bgMusic.play();
+            }
+        });
+
+        return {
+            'show': function() {
+                oMusicIcon.show();
+            },
+            'hide': function() {
+                oMusicIcon.hide();
+            },
+            'changePosition': function( sClass ) {
+                oMusicIcon.removeClass('status1 status2').addClass(sClass);
+            }
+        }
+
+    })();
+
+
     //第1页
     var page1Module = (function() {
 
         var oBox = $('.page1'),
-            oBtn = oBox.find('.btn'),
-            oMusicIcon = $('.musicIcon');
+            oBtn = oBox.find('.btn');
 
         //点击按钮，一探究竟
         oBtn.on('click', function() {
             oBox.fadeOut({'removeClass':'active'});
             page2Module.show();
             setTimeout(function() {
-                oMusicIcon.removeClass('status2');
+                musicModule.changePosition('status1');
             }, 300);
         });
 
         return {
             'show': function() {
                 oBox.fadeIn({'addClass':'active'});
+                musicModule.changePosition('status2');
             }
         }
 
@@ -1096,114 +1326,88 @@ CssSprite.prototype.stop = function() {
             oScan = oBox.find('.scan'),
             oLayer = oBox.find('.layer'),
             layerFrams = oLayer.find('img'),
-            timer = null, index = 0, iLen = 63, canSwipe = false;
+            timer = null, index = 0, stopPage = 33, iLen = stopPage, canSwipe = false;
 
         function playFrams() {
             index ++;
-            if ( index == 62 ) {
+            if ( index == stopPage ) {
                 canSwipe = true;
             }
             if ( index < iLen ) {
                 layerFrams.removeClass('show').eq(index).addClass('show');
             } else {
                 clearInterval(timer);
-                if ( index > 63 ) {
-                    oBox.fadeOut({'removeClass':'active'});
+                if ( index > stopPage ) {
+                    page2Module.hide();
                     page3Module.show();
                 }
             }
         }
 
+        function resetConfig() {
+            timer = null;
+            index = 0;
+            iLen = stopPage;
+            canSwipe = false;
+            layerFrams.removeClass('show').eq(0).addClass('show');
+            oScan.removeClass().addClass('scan').removeAttr('data-animate');
+        }
+
         oBox.on('touchmove', function(ev) {
             ev.preventDefault();
         });
 
-        oBox.one('swipeUp', function() {
+        oBox.on('swipeUp', function() {
             oScan.attr('data-animate', "{'animation':'slide', 'details':{'startY':'-300px', 'targetY':'1200px', 'duration':3000, 'function':'linear'}}");
             jerryAnimate(oScan).render();
+        });
+        oBox.on('swipeDown', function() {
+            page2Module.hide();
+            page1Module.show();
         });
 
         oLayer.on('swipeUp', function() {
             if ( canSwipe ) {
                 canSwipe = false;
                 iLen = layerFrams.length;
-                timer = setInterval(playFrams, 60);
+                clearInterval(timer);
+                timer = setInterval(playFrams, 120);
             }
+            return false;
+        });
+        oLayer.on('swipeDown', function() {
+            if ( canSwipe ) {
+                canSwipe = false;
+                $(this).fadeOut({'removeClass':'active', 'callBack':resetConfig});
+            }
+            return false;
         });
 
         //监测扫描完毕
-        oScan.one('webkitAnimationEnd animationEnd', function() {
+        oScan.on('webkitAnimationEnd animationEnd', function() {
             oLayer.fadeIn({'addClass':'active', 'callBack':function() {
-                timer = setInterval(playFrams, 60);
+                clearInterval(timer);
+                timer = setInterval(playFrams, 120);
             }});
         });
 
         return {
+            'hide': function(callBack) {
+                oBox.fadeOut({'removeClass':'active', 'callBack':callBack});
+            },
             'show': function() {
+                resetConfig();
+                oLayer.removeClass('active');
                 oBox.fadeIn({'addClass':'active'});
             }
         }
 
     })();
-
 
     //第3页
     var page3Module = (function() {
 
         var oBox = $('.page3'),
-            oDl = oBox.find('.square3 dl'),
-            oLayer = oBox.find('.layer'),
-            layerFrams = oLayer.find('img'),
-            timer = null, index = 0, iLen = 21, canSwipe = false;
-
-        function playFrams() {
-            index ++;
-            if ( index == 20 ) {
-                canSwipe = true;
-            }
-            if ( index < iLen ) {
-                layerFrams.removeClass('show').eq(index).addClass('show');
-            } else {
-                clearInterval(timer);
-                if ( index > 21 ) {
-                    oBox.fadeOut({'removeClass':'active'});
-                    page4Module.show();
-                }
-            }
-        }
-
-        oBox.on('touchmove', function(ev) {
-            ev.preventDefault();
-        });
-
-        oBox.one('swipeUp', function() {
-            oDl.removeClass('active');
-            oLayer.addClass('active');
-            timer = setInterval(playFrams, 100);
-        });
-
-        oLayer.on('swipeUp', function() {
-            if ( canSwipe ) {
-                canSwipe = false;
-                iLen = layerFrams.length;
-                timer = setInterval(playFrams, 100);
-            }
-        });
-
-        return {
-            'show': function() {
-                oBox.fadeIn({'addClass':'active'});
-                oDl.addClass('active');
-            }
-        }
-
-    })();
-
-
-    //第4页
-    var page4Module = (function() {
-
-        var oBox = $('.page4'),
             oScroll = oBox.find('.scroll'),
             oLayer = oBox.find('.layer'),
             oBg = oLayer.find('.bg'),
@@ -1211,6 +1415,7 @@ CssSprite.prototype.stop = function() {
             oBgMask = oBg.find('.mask'),
             oBgMaskTrpt = oBg.find('.masktrpt'),
             obox1 = oLayer.find('.box1'),
+            obox2 = oLayer.find('.box2'),
             obox1Gray = obox1.find('.gray');
 
         var scrollFrames = new CssSprite({
@@ -1223,31 +1428,180 @@ CssSprite.prototype.stop = function() {
             'loop'          : 1
         });
 
+        function resetConfig() {
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%'}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%'}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            oBgMask.show();
+            oBgGray.removeClass('active');
+            obox1Gray.fadeIn({'addClass':'active', 'time':0});
+            scrollFrames.play();
+        }
+
         oBox.on('touchmove', function(ev) {
             ev.preventDefault();
         });
-        oBox.one('swipeUp', function() {
+        oBox.on('swipeUp', function() {
             scrollFrames.stop();
-            oLayer.addClass('active');
+            oLayer.fadeIn({'addClass':'active', 'time':0});
+            setTimeout(function() {
+                oBgMask.hide();
+                oBgMaskTrpt.show();
+                oBgGray.addClass('active');
+                obox1Gray.fadeOut({'removeClass':'active'});
+            }, 1000);
+        });
+        oBox.on('swipeDown', function() {
+            scrollFrames.stop();
+            page3Module.hide();
+            page2Module.show();
         });
 
-        oLayer.one('swipeUp', function() {
-            oBox.fadeOut({'removeClass':'active'});
-            page5Module.show();
+        var box1Timer = null;
+        oLayer.on('swipeUp', function() {
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%'}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%'}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            oBgGray.removeClass('active');
+            oBgMask.show();
+            obox1Gray.fadeIn({'addClass':'active'});
+            clearTimeout(box1Timer);
+            box1Timer = setTimeout(function() {
+                oBox.fadeOut({'removeClass':'active', 'time':0});
+                page4Module.show();
+            }, 1000);
+
+            return false;
+        });
+        oLayer.on('swipeDown', function() {
+            $(this).fadeOut({'removeClass':'active'});
+            resetConfig();
+            return false;
         });
 
         //监测layer中box动画完毕
-        obox1.one('webkitAnimationEnd animationEnd', function() {
+        /*obox1.on('webkitAnimationEnd animationEnd', function() {
             oBgMask.hide();
             oBgMaskTrpt.show();
             oBgGray.addClass('active');
             obox1Gray.hide();
-        });
+        });*/
 
         return {
+            'hide': function() {
+                oBox.fadeOut({'removeClass':'active'});
+            },
             'show': function() {
                 oBox.fadeIn({'addClass':'active'});
                 scrollFrames.play();
+                oLayer.removeClass('active');
+                resetConfig();
+            }
+        }
+
+    })();
+
+
+    //第4页
+    var page4Module = (function() {
+
+        var oBox = $('.page4'),
+            oLayer = oBox.find('.layer'),
+            obox1 = oLayer.find('.box1'),
+            obox1Gray = obox1.find('.gray'),
+            obox1Pic = obox1.find('.pic'),
+            obox2 = oLayer.find('.box2'),
+            obox2PicBox = obox2.find('.picbox'),
+            obox2Pic = obox2.find('.pic'),
+            obox3 = oLayer.find('.box3'),
+            obox3View = obox3.find('.view'),
+            obox3Pic = obox3.find('.pic'),
+            obox4 = oLayer.find('.box4');
+
+        function resetConfig() {
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%', 'duration':500}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%', 'duration':500, 'delay':300}}");
+            obox3.removeClass().addClass('box3').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%', 'duration':500, 'delay':600}}");
+            obox4.removeClass().addClass('box4').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%', 'duration':500, 'delay':600}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            jerryAnimate(obox3).render();
+            jerryAnimate(obox4).render();
+            obox1Gray.removeClass('active');
+            obox1Pic.css('opacity', 0);
+            obox2PicBox.removeClass('active');
+            obox2Pic.css('opacity', 0);
+            obox3View.removeClass('active');
+            obox3Pic.css('opacity', 0);
+        }
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+        oBox.on('swipeUp', function() {
+            oLayer.fadeIn({'addClass':'active', 'time':0});
+
+            obox1Gray.addClass('active');
+            obox1Pic.css('opacity', 1);
+
+            setTimeout(function() {
+                obox2PicBox.addClass('active');
+                obox2Pic.css('opacity', 1);
+            }, 300);
+            setTimeout(function() {
+                obox3View.addClass('active');
+                obox3Pic.css('opacity', 1);
+            }, 600);
+        });
+        oBox.on('swipeDown', function() {
+            page4Module.hide();
+            page3Module.show();
+        });
+
+        oLayer.on('swipeUp', function() {
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%', 'duration':500}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%', 'duration':500, 'delay':300}}");
+            obox3.removeClass().addClass('box3').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%', 'duration':500, 'delay':600}}");
+            obox4.removeClass().addClass('box4').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%', 'duration':500, 'delay':600}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            jerryAnimate(obox3).render();
+            jerryAnimate(obox4).render();
+            setTimeout(function() {
+                oBox.fadeOut({'removeClass':'active'});
+                page5Module.show();
+            }, 400);
+            return false;
+        });
+        oLayer.on('swipeDown', function() {
+            $(this).fadeOut({'removeClass':'active'});
+            resetConfig();
+            return false;
+        });
+
+        /*obox1.one('webkitAnimationEnd animationEnd', function() {
+            $(this).addClass('active');
+            obox1Pic.css('opacity', 1);
+        });
+        obox2.one('webkitAnimationEnd animationEnd', function() {
+            $(this).addClass('active');
+            obox2Pic.css('opacity', 1);
+        });
+        obox3.one('webkitAnimationEnd animationEnd', function() {
+            obox3View.addClass('active');
+            obox3Pic.css('opacity', 1);
+        });*/
+
+        return {
+            'hide': function() {
+                oBox.fadeOut({'removeClass':'active'});
+            },
+            'show': function() {
+                resetConfig();
+                oLayer.removeClass('active');
+                oBox.fadeIn({'addClass':'active'});
             }
         }
 
@@ -1257,9 +1611,154 @@ CssSprite.prototype.stop = function() {
     //第5页
     var page5Module = (function() {
 
-        var oBox = $('.page5');
+        var oBox = $('.page5'),
+            oDl = oBox.find('.square3 dl'),
+            oLayer = oBox.find('.layer'),
+            layerFrams = oLayer.find('img'),
+            timer = null, index = 0, stopPage = 17, iLen = stopPage, canSwipe = false;
+
+        function playFrams() {
+            index ++;
+            if ( index == stopPage ) {
+                canSwipe = true;
+            }
+            if ( index < iLen ) {
+                layerFrams.removeClass('show').eq(index).addClass('show');
+            } else {
+                clearInterval(timer);
+                if ( index > stopPage ) {
+                    oBox.fadeOut({'removeClass':'active'});
+                    page6Module.show();
+                }
+            }
+        }
+
+        function resetConfig() {
+            timer = null;
+            index = 0;
+            iLen = stopPage;
+            canSwipe = false;
+            layerFrams.removeClass('show').eq(0).addClass('show');
+            oDl.addClass('active');
+        }
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+        oBox.on('swipeUp', function() {
+            //oDl.removeClass('active');
+            oLayer.fadeIn({'addClass':'active', 'time':0});
+            clearInterval(timer);
+            timer = setInterval(playFrams, 200);
+        });
+        oBox.on('swipeDown', function() {
+            page5Module.hide();
+            page4Module.show();
+        });
+
+        oLayer.on('swipeUp', function() {
+            if ( canSwipe ) {
+                canSwipe = false;
+                iLen = layerFrams.length;
+                clearInterval(timer);
+                timer = setInterval(playFrams, 200);
+            }
+            return false;
+        });
+        oLayer.on('swipeDown', function() {
+            if ( canSwipe ) {
+                canSwipe = false;
+                $(this).fadeOut({'removeClass':'active', 'callBack':resetConfig});
+            }
+            return false;
+        });
 
         return {
+            'hide': function() {
+                oBox.fadeOut({'removeClass':'active'});
+            },
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+                resetConfig();
+                oLayer.removeClass('active');
+                musicModule.changePosition('status1');
+            }
+        }
+
+    })();
+
+
+    //第6页
+    var page6Module = (function() {
+
+        var oBox = $('.page6'),
+            oBtn = oBox.find('.btn'),
+            oLayer = oBox.find('.layer'),
+            oContent = oLayer.find('.content'),
+            oClose = oLayer.find('.close'),
+            oArticle = oContent.find('article'),
+            isFirst = true;
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+        oBox.on('swipeUp', function() {
+            oBox.fadeOut({'removeClass':'active'});
+            page7Module.show();
+        });
+        oBox.on('swipeDown', function() {
+            page6Module.hide();
+            page5Module.show();
+        });
+
+        oLayer.on('touchmove', function() {
+            return false;
+        });
+
+        oClose.on('click', function() {
+            oLayer.fadeOut({'removeClass':'active'});
+            musicModule.show();
+        });
+
+        oBtn.on('click', function() {
+            oLayer.fadeIn({'addClass':'active'});
+            musicModule.hide();
+        });
+
+        return {
+            'hide': function() {
+                oBox.fadeOut({'removeClass':'active'});
+            },
+            'show': function() {
+                oBox.fadeIn({'addClass':'active'});
+                musicModule.changePosition('status2');
+                if ( isFirst ) {
+                    isFirst = false;
+                    oArticle.vScrollbar();
+                }
+            }
+        }
+
+    })();
+
+
+    //第7页
+    var page7Module = (function() {
+
+        var oBox = $('.page7');
+
+        oBox.on('touchmove', function(ev) {
+            ev.preventDefault();
+        });
+        oBox.on('swipeDown', function() {
+            page7Module.hide();
+            page6Module.show();
+        });
+
+        return {
+            'hide': function() {
+                oBox.fadeOut({'removeClass':'active'});
+            },
             'show': function() {
                 oBox.fadeIn({'addClass':'active'});
             }
@@ -1267,9 +1766,8 @@ CssSprite.prototype.stop = function() {
 
     })();
 
-
     //test
-    $('.loading').hide();
-    page5Module.show();
+    /*$('.loading').hide();
+    page4Module.show();*/
 
 })( Zepto );

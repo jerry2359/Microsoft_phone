@@ -99,7 +99,7 @@ gulp.task('concatCss', function() {
 gulp.task('concatJs', function() {
     return gulp.src([
         'src/js/webscale.js', 'src/js/zepto.min.js', 'src/js/jerryAnimate.js', 'src/js/template.js', 'src/js/lazyloading.js',
-        'src/js/touch.js', 'src/js/fx.js', 'src/js/cssSprite.js', 'src/js/index.js'
+        'src/js/touch.js', 'src/js/fx.js', 'src/js/cssSprite.js', 'src/js/scrollbar.js', 'src/js/index.js'
     ])
             .pipe(plumber()) //plumber给pipe打补丁防止watch因报错而终止监听
             .pipe(concat('all.js'))

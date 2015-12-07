@@ -195,17 +195,19 @@
 
         'zoomIn': {
             'defs': {
+                'startOpacity': 0,
+                'targetOpacity': 1,
                 'startZoom': 0.3,
                 'targetZoom': 1
             },
             'style': '@-webkit-keyframes #animationClass# {\n\
                             0% {\n\
-                                opacity: 0;\n\
+                                opacity: #startOpacity#;\n\
                                 -webkit-transform: scale(#startZoom#);\n\
                                 transform: scale(#startZoom#);\n\
                             }\n\
                             50% {\n\
-                                opacity: 1;\n\
+                                opacity: #targetOpacity#;\n\
                             }\n\
                             100% {\n\
                                 -webkit-transform: scale(#targetZoom#);\n\
@@ -214,12 +216,12 @@
                         }\n\
                         @keyframes #animationClass# {\n\
                             0% {\n\
-                                opacity: 0;\n\
+                                opacity: #startOpacity#;\n\
                                 -webkit-transform: scale(#startZoom#);\n\
                                 transform: scale(#startZoom#);\n\
                             }\n\
                             50% {\n\
-                                opacity: 1;\n\
+                                opacity: #targetOpacity#;\n\
                             }\n\
                             100% {\n\
                                 -webkit-transform: scale(#targetZoom#);\n\

@@ -251,6 +251,8 @@
         styleTag.innerHTML = styleStr;
         $(styleTag).remove();
         $('head').append(styleTag);
+
+        return _this;
     };
 
 

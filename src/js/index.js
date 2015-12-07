@@ -54,9 +54,14 @@
     var musicModule = (function() {
 
         var oMusicIcon = $('.musicIcon'),
-            bgMusic = new Audio('../media/bgmusic.mp3');
+            bgMusic = new Audio('../media/bgmusic.mp3'),
+            isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
 
         bgMusic.loop = 'loop';
+        if ( isIos ) {
+            oMusicIcon.removeClass('gray');
+            bgMusic.play();
+        }
 
         oMusicIcon.on('click', function() {
             var thisIcon = $(this);
@@ -205,6 +210,7 @@
             oBgMask = oBg.find('.mask'),
             oBgMaskTrpt = oBg.find('.masktrpt'),
             obox1 = oLayer.find('.box1'),
+            obox2 = oLayer.find('.box2'),
             obox1Gray = obox1.find('.gray');
 
         var scrollFrames = new CssSprite({
@@ -218,9 +224,13 @@
         });
 
         function resetConfig() {
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%'}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%'}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
             oBgMask.show();
             oBgGray.removeClass('active');
-            obox1Gray.show();
+            obox1Gray.fadeIn({'addClass':'active', 'time':0});
             scrollFrames.play();
         }
 
@@ -230,6 +240,12 @@
         oBox.on('swipeUp', function() {
             scrollFrames.stop();
             oLayer.fadeIn({'addClass':'active', 'time':0});
+            setTimeout(function() {
+                oBgMask.hide();
+                oBgMaskTrpt.show();
+                oBgGray.addClass('active');
+                obox1Gray.fadeOut({'removeClass':'active'});
+            }, 1000);
         });
         oBox.on('swipeDown', function() {
             scrollFrames.stop();
@@ -237,9 +253,21 @@
             page2Module.show();
         });
 
+        var box1Timer = null;
         oLayer.on('swipeUp', function() {
-            oBox.fadeOut({'removeClass':'active'});
-            page4Module.show();
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%'}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%'}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            oBgGray.removeClass('active');
+            oBgMask.show();
+            obox1Gray.fadeIn({'addClass':'active'});
+            clearTimeout(box1Timer);
+            box1Timer = setTimeout(function() {
+                oBox.fadeOut({'removeClass':'active', 'time':0});
+                page4Module.show();
+            }, 1000);
+
             return false;
         });
         oLayer.on('swipeDown', function() {
@@ -249,12 +277,12 @@
         });
 
         //监测layer中box动画完毕
-        obox1.on('webkitAnimationEnd animationEnd', function() {
+        /*obox1.on('webkitAnimationEnd animationEnd', function() {
             oBgMask.hide();
             oBgMaskTrpt.show();
             oBgGray.addClass('active');
             obox1Gray.hide();
-        });
+        });*/
 
         return {
             'hide': function() {
@@ -277,17 +305,28 @@
         var oBox = $('.page4'),
             oLayer = oBox.find('.layer'),
             obox1 = oLayer.find('.box1'),
+            obox1Gray = obox1.find('.gray'),
             obox1Pic = obox1.find('.pic'),
             obox2 = oLayer.find('.box2'),
+            obox2PicBox = obox2.find('.picbox'),
             obox2Pic = obox2.find('.pic'),
             obox3 = oLayer.find('.box3'),
             obox3View = obox3.find('.view'),
-            obox3Pic = obox3.find('.pic');
+            obox3Pic = obox3.find('.pic'),
+            obox4 = oLayer.find('.box4');
 
         function resetConfig() {
-            obox1.removeClass('active');
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%', 'duration':500}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%', 'duration':500, 'delay':300}}");
+            obox3.removeClass().addClass('box3').attr('data-animate', "{'animation':'slide', 'details':{'startX':'100%', 'duration':500, 'delay':600}}");
+            obox4.removeClass().addClass('box4').attr('data-animate', "{'animation':'slide', 'details':{'startX':'-100%', 'duration':500, 'delay':600}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            jerryAnimate(obox3).render();
+            jerryAnimate(obox4).render();
+            obox1Gray.removeClass('active');
             obox1Pic.css('opacity', 0);
-            obox2.removeClass('active');
+            obox2PicBox.removeClass('active');
             obox2Pic.css('opacity', 0);
             obox3View.removeClass('active');
             obox3Pic.css('opacity', 0);
@@ -299,11 +338,11 @@
         oBox.on('swipeUp', function() {
             oLayer.fadeIn({'addClass':'active', 'time':0});
 
-            obox1.addClass('active');
+            obox1Gray.addClass('active');
             obox1Pic.css('opacity', 1);
 
             setTimeout(function() {
-                obox2.addClass('active');
+                obox2PicBox.addClass('active');
                 obox2Pic.css('opacity', 1);
             }, 300);
             setTimeout(function() {
@@ -317,8 +356,18 @@
         });
 
         oLayer.on('swipeUp', function() {
-            oBox.fadeOut({'removeClass':'active'});
-            page5Module.show();
+            obox1.removeClass().addClass('box1').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%', 'duration':500}}");
+            obox2.removeClass().addClass('box2').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%', 'duration':500, 'delay':300}}");
+            obox3.removeClass().addClass('box3').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'100%', 'duration':500, 'delay':600}}");
+            obox4.removeClass().addClass('box4').attr('data-animate', "{'animation':'slide', 'details':{'targetX':'-100%', 'duration':500, 'delay':600}}");
+            jerryAnimate(obox1).render();
+            jerryAnimate(obox2).render();
+            jerryAnimate(obox3).render();
+            jerryAnimate(obox4).render();
+            setTimeout(function() {
+                oBox.fadeOut({'removeClass':'active'});
+                page5Module.show();
+            }, 400);
             return false;
         });
         oLayer.on('swipeDown', function() {
@@ -395,7 +444,7 @@
             //oDl.removeClass('active');
             oLayer.fadeIn({'addClass':'active', 'time':0});
             clearInterval(timer);
-            timer = setInterval(playFrams, 120);
+            timer = setInterval(playFrams, 200);
         });
         oBox.on('swipeDown', function() {
             page5Module.hide();
@@ -407,7 +456,7 @@
                 canSwipe = false;
                 iLen = layerFrams.length;
                 clearInterval(timer);
-                timer = setInterval(playFrams, 120);
+                timer = setInterval(playFrams, 200);
             }
             return false;
         });
@@ -514,6 +563,6 @@
 
     //test
     /*$('.loading').hide();
-    page6Module.show();*/
+    page4Module.show();*/
 
 })( Zepto );
